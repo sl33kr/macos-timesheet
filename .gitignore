@@ -1,6 +1,9 @@
 # Generated plist file
 com.user.timesheet.plist
 
+# Generated timesheet file
+timesheet.csv
+
 # Log files
 timesheet-tracking.err
 timesheet-tracking.out

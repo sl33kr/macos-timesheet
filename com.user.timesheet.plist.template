@@ -5,7 +5,10 @@
     <key>Label</key>
     <string>com.user.timesheet</string>
     <key>ProgramArguments</key>
-    <array><string>{{current_dir}}/timesheet-tracking.sh</string></array>
+    <array>
+        <string>{{current_dir}}/timesheet-tracking.sh</string>
+        <string>{{current_dir}}/timesheet.csv</string>
+    </array>
     <key>RunAtLoad</key>
     <true/>
     <key>StartInterval</key>

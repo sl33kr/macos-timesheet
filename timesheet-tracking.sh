@@ -1,9 +1,28 @@
 #!/bin/bash
 set -e
 
+function handle_ssid_error {
+    echo "Error: Unable to retrieve SSID. Please ensure you are connected to a Wi-Fi network."
+}
+
+function get_ssid {
+    trap 'handle_ssid_error' ERR
+
+    SSID=$(system_profiler SPAirPortDataType | sed -n '/Current Network Information/{n;s/^ *\([^:]*\):/\1/p;q;}')
+    echo "$SSID"
+}
+
 # This is based on https://stackoverflow.com/a/66723000
 function screenIsLocked { [ "$(/usr/libexec/PlistBuddy -c "print :IOConsoleUsers:0:CGSSessionScreenIsLocked" /dev/stdin 2>/dev/null <<< "$(ioreg -n Root -d1 -a)")" = "true" ] && return 0 || return 1; }
 function screenIsUnlocked { [ "$(/usr/libexec/PlistBuddy -c "print :IOConsoleUsers:0:CGSSessionScreenIsLocked" /dev/stdin 2>/dev/null <<< "$(ioreg -n Root -d1 -a)")" != "true" ] && return 0 || return 1; }
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+if [ -f "$SCRIPT_DIR/config.env" ]; then
+    echo "config.env file found, sourcing it..."
+    source "$SCRIPT_DIR/config.env"
+fi
+
 
 # This comes from https://community.jamf.com/t5/jamf-pro/check-if-screen-is-locked-in-a-script/m-p/116688
 IDLE_TIME=$((`ioreg -c IOHIDSystem | sed -e '/HIDIdleTime/ !{ d' -e 't' -e '}' -e 's/.* = //g' -e 'q'` / 1000000000))
@@ -19,6 +38,7 @@ fi
 
 DATE=$(date -I)
 TIME=$(date +%H:%M)
+SSID=$(get_ssid)
 
 LAST_LINE=$(tail -n 1 "$TIME_LOG_FILE")
 
@@ -41,6 +61,13 @@ echo "Last date: $LAST_DATE"
 echo "Last session status: $LAST_SESSION_STATUS"
 echo "Current idle time: $IDLE_TIME"
 echo "User is idle: $USER_IS_IDLE"
+echo "Configured office Wi-Fi SSID: $OFFICE_WIFI_SSID"
+echo "Current SSID: '$SSID'"
+
+if [[ -n "$OFFICE_WIFI_SSID" && $SSID = $OFFICE_WIFI_SSID* ]]; then
+    echo "Connected to office Wi-Fi, skipping timesheet update..."
+    exit 0
+fi
 
 if screenIsLocked; then
     echo "Screen is locked..."

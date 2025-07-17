@@ -7,3 +7,6 @@ timesheet.csv
 # Log files
 timesheet-tracking.err
 timesheet-tracking.out
+
+# Config
+config.env

@@ -12,6 +12,14 @@ Clone this repository into somewhere under your `$HOME` directory. Then run the 
 ./install.sh
 ```
 
+### Configuration
+
+This script also supports tracking home vs office time using Wifi connection details. To configure this, create a `config.env` file in this same directory with the SSID of your office wifi.
+
+```
+OFFICE_WIFI_SSID=my-office-wifi
+```
+
 ## Known Issues
 
 ### Logout

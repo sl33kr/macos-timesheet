@@ -33,7 +33,7 @@ echo ""
 echo "Writing timesheet file to $TIME_LOG_FILE"
 
 if [ ! -f "$TIME_LOG_FILE" ]; then
-    echo "Date,Session Start,Session End" > "$TIME_LOG_FILE"
+    echo "Date,In Office,Session Start,Session End" > "$TIME_LOG_FILE"
 fi
 
 DATE=$(date -I)
@@ -55,6 +55,11 @@ elif [ ${#LINE_PARTS[@]} == 3 ]; then
     LAST_SESSION_STATUS="Ended"
 fi
 
+IN_OFFICE="false"
+if [[ -n "$OFFICE_WIFI_SSID" && $SSID = $OFFICE_WIFI_SSID* ]]; then
+    IN_OFFICE="true"
+fi
+
 echo "Current date: $DATE"
 echo "Current time: $TIME"
 echo "Last date: $LAST_DATE"
@@ -63,11 +68,7 @@ echo "Current idle time: $IDLE_TIME"
 echo "User is idle: $USER_IS_IDLE"
 echo "Configured office Wi-Fi SSID: $OFFICE_WIFI_SSID"
 echo "Current SSID: '$SSID'"
-
-if [[ -n "$OFFICE_WIFI_SSID" && $SSID = $OFFICE_WIFI_SSID* ]]; then
-    echo "Connected to office Wi-Fi, skipping timesheet update..."
-    exit 0
-fi
+echo "In office: $IN_OFFICE"
 
 if screenIsLocked; then
     echo "Screen is locked..."
@@ -81,11 +82,11 @@ elif screenIsUnlocked; then
     echo "Screen is unlocked..."
     if [ "$LAST_SESSION_STATUS" != "Open" ]; then
         echo "Last session ended, writing..."
-        echo -n "$DATE,$TIME" >> "$TIME_LOG_FILE"
+        echo -n "$DATE,$IN_OFFICE,$TIME" >> "$TIME_LOG_FILE"
     elif [ "$LAST_DATE" != "$DATE" ]; then
         echo "Last session was on different date, writing..."
         echo "" >> "$TIME_LOG_FILE"
-        echo -n "$DATE,$TIME" >> "$TIME_LOG_FILE"
+        echo -n "$DATE,$IN_OFFICE,$TIME" >> "$TIME_LOG_FILE"
     else
         echo "Last session still open, skipping..."
     fi

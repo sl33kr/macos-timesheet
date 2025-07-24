@@ -49,9 +49,9 @@ LAST_DATE="${LINE_PARTS[0]}"
 USER_IS_IDLE=$([ $IDLE_TIME -gt 300 ] && echo true || echo false)
 
 LAST_SESSION_STATUS="Unknown"
-if [ ${#LINE_PARTS[@]} == 2 ]; then
+if [ ${#LINE_PARTS[@]} == 3 ]; then
     LAST_SESSION_STATUS="Open"
-elif [ ${#LINE_PARTS[@]} == 3 ]; then
+elif [ ${#LINE_PARTS[@]} == 4 ]; then
     LAST_SESSION_STATUS="Ended"
 fi
 
